@@ -1,5 +1,5 @@
 {
-  "name": "camunda-saas-oauth-nodejs",
+  "name": "camunda-saas-oauth",
   "version": "1.0.0",
   "description": "A library to exchange a set of Camunda 8 SaaS API credentials for a token",
   "main": "dist/index.js",
