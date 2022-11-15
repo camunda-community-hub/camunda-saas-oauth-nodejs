@@ -12,7 +12,7 @@
     "url": "git+https://github.com/camunda-community-hub/camunda-saas-oauth-nodejs.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "josh.wulf@camunda.com",
   "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/camunda-community-hub/camunda-saas-oauth-nodejs/issues"
