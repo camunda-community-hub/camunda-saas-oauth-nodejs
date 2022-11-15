@@ -16,5 +16,5 @@ export interface OAuthProviderConfig {
     userAgentString: string
 }
 
-export { OAuthProviderImpl as OAuthProvider } from "./lib/OAuthProviderImpl"
-export { OAuthProvider as OAuthProviderFromEnv } from "./lib/OAuthProvider"
+export { OAuthProviderImpl } from "./lib/OAuthProviderImpl"
+export { OAuthProvider } from "./lib/OAuthProvider"
