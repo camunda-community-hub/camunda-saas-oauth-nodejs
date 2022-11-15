@@ -8,17 +8,13 @@ export interface Token {
 
 export interface OAuthProviderConfig {
 	/** OAuth Endpoint URL */
-	url: string
+	authServerUrl: string
 	/** OAuth Audience */
 	audience: string
 	clientId: string
 	clientSecret: string
     userAgentString: string
-	/** Cache token in memory and on filesystem? */
-	cacheOnDisk?: boolean
-	/** Override default token cache directory */
-	cacheDir?: string
 }
 
-export { OAuthProvider } from "./lib/OAuthProvider"
-export { OAuthProviderFromEnv } from "./lib/OAuthProviderFromEnv"
+export { OAuthProviderImpl as OAuthProvider } from "./lib/OAuthProviderImpl"
+export { OAuthProvider as OAuthProviderFromEnv } from "./lib/OAuthProvider"

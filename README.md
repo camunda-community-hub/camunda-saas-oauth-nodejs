@@ -23,16 +23,24 @@ npm i camunda-saas-oauth
 ## Usage
 
 ```typescript
-import { OAuthProviderFromEnv } from "camunda-saas-oauth"
+import { OAuthProvider } from "camunda-saas-oauth"
 
-const o = new OAuthProviderFromEnv('myclient-nodejs/1.0.0')
+const o = new OAuthProvider('myclient-nodejs/1.0.0')
 
 o.getToken().then(token => {
     // Make an API to Camunda SaaS with the token
 })
 ```
 
-`OAuthProviderFromEnv` grabs the client credentials from the environment. No need to configure anything except a custom user agent string.
+`OAuthProvider` grabs the client credentials from the environment. No need to pass anything to the constructor except a custom user agent string.
+
+## Configuration
+
+Set the API client credentials in the environment.
+
+To configure a different cache directory, set the `CAMUNDA_TOKEN_CACHE_DIR` environment variable.
+
+To turn off disk caching, set the environment variable `CAMUNDA_TOKEN_CACHE=memory-only`.
 
 ## User Agent
 
