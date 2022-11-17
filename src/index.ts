@@ -3,7 +3,8 @@ export interface Token {
 	scope: string
 	expires_in: number
 	token_type: string
-	expiry: number
+	expiry: number,
+	audience: string
 }
 
 export interface OAuthProviderConfig {

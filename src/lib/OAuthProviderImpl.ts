@@ -6,11 +6,13 @@ import * as os from 'os'
 const homedir = os.homedir()
 const BACKOFF_TOKEN_ENDPOINT_FAILURE = 1000
 
+type TokenGrantAudiences = 'OPERATE' | 'ZEEBE' | 'OPTIMIZE' | 'TASKLIST'
+
 export class OAuthProviderImpl {
     private static readonly defaultTokenCache = `${homedir}/.camunda`;
     private static readonly getTokenCacheDirFromEnv = () => process.env.CAMUNDA_TOKEN_CACHE_DIR || OAuthProviderImpl.defaultTokenCache;
     public cacheDir: string;
-    public audience: string;
+    public zeebeAudience: string;
     public authServerUrl: string;
     public clientId: string;
     public clientSecret: string;
@@ -28,7 +30,7 @@ export class OAuthProviderImpl {
         userAgentString
     }: OAuthProviderConfig) {
         this.authServerUrl = authServerUrl;
-        this.audience = audience;
+        this.zeebeAudience = audience;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.useFileCache = process.env.CAMUNDA_TOKEN_CACHE !== "memory-only";
@@ -51,12 +53,14 @@ export class OAuthProviderImpl {
         }
     }
 
-    public async getToken(): Promise<string> {
-        if (this.tokenCache[this.clientId]) {
-            return this.tokenCache[this.clientId].access_token;
+    public async getToken(audience: TokenGrantAudiences): Promise<string> {
+        const key = this.getCacheKey(audience)
+
+        if (this.tokenCache[key]) {
+            return this.tokenCache[key].access_token;
         }
         if (this.useFileCache) {
-            const cachedToken = this.fromFileCache(this.clientId);
+            const cachedToken = this.fromFileCache(this.clientId, audience);
             if (cachedToken) {
                 return cachedToken.access_token;
             }
@@ -65,7 +69,7 @@ export class OAuthProviderImpl {
         return new Promise((resolve, reject) => {
             setTimeout(
                 () => {
-                    this.debouncedTokenRequest()
+                    this.debouncedTokenRequest(audience)
                         .then(res => {
                             this.failed = false;
                             this.failureCount = 0;
@@ -82,9 +86,9 @@ export class OAuthProviderImpl {
         });
     }
 
-    private debouncedTokenRequest() {
+    private debouncedTokenRequest(audience: TokenGrantAudiences) {
         const form = {
-            audience: this.audience,
+            audience: this.getAudience(audience),
             client_id: this.clientId,
             client_secret: this.clientSecret,
             grant_type: 'client_credentials',
@@ -99,11 +103,13 @@ export class OAuthProviderImpl {
                 },
             })
             .then(res => this.safeJSONParse(res.body)
-            .then(token => {
+            .then(t => {
+                    const token = {...t, audience}
                     if (this.useFileCache) {
-                        this.toFileCache(token);
+                        this.toFileCache(token, audience);
                     }
-                    this.tokenCache[this.clientId] = token;
+                    const key = this.getCacheKey(audience)
+                    this.tokenCache[key] = token;
                     this.startExpiryTimer(token);
                     return token.access_token;
                 })
@@ -120,15 +126,15 @@ export class OAuthProviderImpl {
         });
     }
 
-    private fromFileCache(clientId: string) {
+    private fromFileCache(clientId: string, audience: TokenGrantAudiences) {
         let token: Token;
-        const tokenCachedInFile = fs.existsSync(this.cachedTokenFile(clientId));
+        const tokenCachedInFile = fs.existsSync(this.getCachedTokenFileName(clientId, audience));
         if (!tokenCachedInFile) {
             return null;
         }
         try {
             token = JSON.parse(
-                fs.readFileSync(this.cachedTokenFile(clientId), 'utf8')
+                fs.readFileSync(this.getCachedTokenFileName(clientId, audience), 'utf8')
             );
 
             if (this.isExpired(token)) {
@@ -141,9 +147,9 @@ export class OAuthProviderImpl {
         }
     }
 
-    private toFileCache(token: Token) {
+    private toFileCache(token: Token, audience: TokenGrantAudiences) {
         const d = new Date();
-        const file = this.cachedTokenFile(this.clientId);
+        const file = this.getCachedTokenFileName(this.clientId, audience);
 
         fs.writeFile(
             file,
@@ -179,5 +185,16 @@ export class OAuthProviderImpl {
         setTimeout(() => delete this.tokenCache[this.clientId], validityPeriod);
     }
 
-    private cachedTokenFile = (clientId: string) => `${this.cacheDir}/oauth-token-${clientId}.json`;
+    private getCacheKey = (audience: TokenGrantAudiences) => `${this.clientId}-${audience}`
+    private getCachedTokenFileName = (clientId: string, audience: TokenGrantAudiences) => `${this.cacheDir}/oauth-token-${clientId}-${audience}.json`;
+    
+    private getAudience(audience: TokenGrantAudiences) {
+        const audiences: {[key: string]: string} = {
+            OPERATE: 'operate.camunda.io',
+            ZEEBE: this.zeebeAudience,
+            OPTIMIZE: 'optimize.camunda.io',
+            TASKLIST: 'tasklist.camunda.io'
+        }
+        return audiences[audience]
+    }
 }

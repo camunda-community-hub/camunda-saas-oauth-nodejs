@@ -27,12 +27,14 @@ import { OAuthProvider } from "camunda-saas-oauth"
 
 const o = new OAuthProvider('myclient-nodejs/1.0.0')
 
-o.getToken().then(token => {
-    // Make an API to Camunda SaaS with the token
+o.getToken('OPERATE').then(token => {
+    // Make an API call to Operate in Camunda SaaS with the token
 })
 ```
 
 `OAuthProvider` grabs the client credentials from the environment. No need to pass anything to the constructor except a custom user agent string.
+
+For `getToken`, specify if you want a token for `ZEEBE` | `OPERATE` | `OPTIMIZE` | `TASKLIST`.
 
 ## Configuration
 
