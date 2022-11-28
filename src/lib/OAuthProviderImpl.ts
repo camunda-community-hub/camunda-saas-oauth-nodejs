@@ -6,18 +6,18 @@ import * as os from 'os'
 const homedir = os.homedir()
 const BACKOFF_TOKEN_ENDPOINT_FAILURE = 1000
 
-type TokenGrantAudiences = 'OPERATE' | 'ZEEBE' | 'OPTIMIZE' | 'TASKLIST'
+type TokenGrantAudiences = 'OPERATE' | 'ZEEBE' | 'OPTIMIZE' | 'TASKLIST' | 'CONSOLE'
 
 export class OAuthProviderImpl {
     private static readonly defaultTokenCache = `${homedir}/.camunda`;
     private static readonly getTokenCacheDirFromEnv = () => process.env.CAMUNDA_TOKEN_CACHE_DIR || OAuthProviderImpl.defaultTokenCache;
-    public cacheDir: string;
-    public zeebeAudience: string;
-    public authServerUrl: string;
-    public clientId: string;
-    public clientSecret: string;
-    public useFileCache: boolean;
-    public tokenCache: { [key: string]: Token; } = {};
+    private cacheDir: string;
+    private zeebeAudience: string;
+    private authServerUrl: string;
+    private clientId: string;
+    private clientSecret: string;
+    private useFileCache: boolean;
+    private tokenCache: { [key: string]: Token; } = {};
     private failed = false;
     private failureCount = 0;
     private userAgentString: string;
@@ -193,7 +193,8 @@ export class OAuthProviderImpl {
             OPERATE: 'operate.camunda.io',
             ZEEBE: this.zeebeAudience,
             OPTIMIZE: 'optimize.camunda.io',
-            TASKLIST: 'tasklist.camunda.io'
+            TASKLIST: 'tasklist.camunda.io',
+            CONSOLE: 'api.cloud.camunda.io'
         }
         return audiences[audience]
     }
