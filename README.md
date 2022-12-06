@@ -8,7 +8,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A library to exchange a set of Camunda 8 SaaS API credentials for a token to make API calls to Camunda 8 SaaS.
+A library to exchange a set of Camunda 8 SaaS API credentials for a token to make API calls to Camunda 8 SaaS. Uses [camunda-8-credentials-from-env](https://github.com/camunda-community-hub/camunda-8-credentials-from-env) to get the credentials from the environment.
 
 Caches the token to disk, and refreshes tokens before they expire.
 
@@ -22,23 +22,21 @@ npm i camunda-saas-oauth
 
 ## Usage
 
+For example, to get a token to interact with the Operate API: 
+
 ```typescript
-import { OAuthProvider } from "camunda-saas-oauth"
+import { getOperateToken } from "camunda-saas-oauth"
 
-const o = new OAuthProvider('myclient-nodejs/1.0.0')
-
-o.getToken('OPERATE').then(token => {
+getOperateToken('myclient-nodejs/1.0.0').then(token => {
     // Make an API call to Operate in Camunda SaaS with the token
 })
 ```
 
-`OAuthProvider` grabs the client credentials from the environment. No need to pass anything to the constructor except a custom user agent string.
-
-For `getToken`, specify if you want a token for `ZEEBE` | `OPERATE` | `OPTIMIZE` | `TASKLIST`.
+`getOperateToken` grabs the client credentials from the environment. No need to pass anything except a custom user agent string.
 
 ## Configuration
 
-Set the API client credentials in the environment.
+Set the API client credentials in the environment, using [the environment variables from the web console](https://docs.camunda.io/docs/components/console/manage-clusters/manage-api-clients/).
 
 To configure a different cache directory, set the `CAMUNDA_TOKEN_CACHE_DIR` environment variable.
 
@@ -46,7 +44,7 @@ To turn off disk caching, set the environment variable `CAMUNDA_TOKEN_CACHE=memo
 
 ## User Agent
 
-Example of a custom user agent string: `zeebe-client-nodejs/${pkg.version} ${CUSTOM_AGENT_STRING}`
+Example of a custom user agent string: `mycustom-client-nodejs/${pkg.version} ${CUSTOM_AGENT_STRING}`
 
 
 

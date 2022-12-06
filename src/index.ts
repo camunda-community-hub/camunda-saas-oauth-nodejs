@@ -19,3 +19,9 @@ export interface OAuthProviderConfig {
 
 export { OAuthProviderImpl } from "./lib/OAuthProviderImpl"
 export { OAuthProvider } from "./lib/OAuthProvider"
+
+
+export { getOperateToken } from "./lib/Operate"
+export { getOptimizeToken } from "./lib/Optimize"
+export { getTasklistToken } from "./lib/Tasklist"
+export { getZeebeToken } from "./lib/Zeebe"
