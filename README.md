@@ -20,19 +20,27 @@ Install as a dependency:
 npm i camunda-saas-oauth
 ```
 
-## Usage
-
-For example, to get a token to interact with the Operate API: 
+## Usage 
 
 ```typescript
-import { getOperateToken } from "camunda-saas-oauth"
+import * as auth from "camunda-saas-oauth"
 
-getOperateToken('myclient-nodejs/1.0.0').then(token => {
-    // Make an API call to Operate in Camunda SaaS with the token
-})
+async function main () {
+    const useragent = 'myclient-nodejs/1.0.0'
+    const operateToken = await auth.getOperateToken(useragent)
+    const tasklistToken = await auth.getTasklistToken(useragent)
+    const optimizeToken = await auth.getOptimizeToken(useragent)
+    const zeebeToken = await auth.getZeebeToken(useragent)
+    return {
+        operateToken,
+        tasklistToken,
+        optimizeToken,
+        zeebeToken
+    }
+}   
 ```
 
-`getOperateToken` grabs the client credentials from the environment. No need to pass anything except a custom user agent string.
+The call will throw if the client credentials are not found in the environment, or you request a token for a scope for which the credentials are not valid. 
 
 ## Configuration
 
