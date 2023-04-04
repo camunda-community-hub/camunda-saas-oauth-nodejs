@@ -38,6 +38,6 @@ xtest('Can get Zeebe token', async () => {
 
 test('Can get a console token from the environment vars', async () => {
     const token = await getConsoleToken('client-nodejs testing')
-    console.log(token)
+    // console.log(token)
     expect(typeof token).toBe("string")
 })

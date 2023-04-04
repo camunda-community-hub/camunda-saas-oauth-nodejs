@@ -21,6 +21,7 @@ export class OAuthProviderImpl {
     private failed = false;
     private failureCount = 0;
     private userAgentString: string;
+    private audience: string;
 
     constructor({
         /** OAuth Endpoint URL */
@@ -31,6 +32,7 @@ export class OAuthProviderImpl {
     }: OAuthProviderConfig) {
         this.authServerUrl = authServerUrl;
         this.zeebeAudience = audience;
+        this.audience = audience;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.useFileCache = process.env.CAMUNDA_TOKEN_CACHE !== "memory-only";
@@ -194,7 +196,7 @@ export class OAuthProviderImpl {
             ZEEBE: this.zeebeAudience,
             OPTIMIZE: 'optimize.camunda.io',
             TASKLIST: 'tasklist.camunda.io',
-            CONSOLE: 'api.cloud.camunda.io'
+            CONSOLE: this.audience || 'api.cloud.camunda.io'
         }
         return audiences[audience]
     }
