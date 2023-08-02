@@ -54,5 +54,27 @@ To turn off disk caching, set the environment variable `CAMUNDA_TOKEN_CACHE=memo
 
 Example of a custom user agent string: `mycustom-client-nodejs/${pkg.version} ${CUSTOM_AGENT_STRING}`
 
+## Advanced Usage
+
+The exported `OauthProvider` class is a wrapper for `OAuthProviderImpl` that hydrates the `OAuthProviderImpl` with credentials from the environment. 
+
+If you want to manually set the credentials (for example, to address multiple clusters in a single application), you can do so by creating an `OAuthProviderImpl` directly, like so:
+
+```typescript
+import { OAuthProviderImpl } from 'camunda-saas-oauth'
+
+const oauth = new OAuthProviderImpl({
+        /** OAuth Endpoint URL */
+        authServerUrl,
+        /** OAuth Audience */
+        audience, clientId, clientSecret,
+        userAgentString
+})
+
+const operateToken = oauth.getToken('OPERATE')
+const optimizeToken = oauth.getToken('OPTIMIZE')
+const tasklistToken = oauth.getToken('TASKLIST')
+const zeebeToken = oauth.getToken('ZEEBE')
+```
 
 
