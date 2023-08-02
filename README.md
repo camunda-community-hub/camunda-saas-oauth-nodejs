@@ -56,7 +56,9 @@ Example of a custom user agent string: `mycustom-client-nodejs/${pkg.version} ${
 
 ## Advanced Usage
 
-The exported `OAuthProvider` class is a wrapper for `OAuthProviderImpl` that hydrates the `OAuthProviderImpl` with credentials from the environment. 
+The methods that return tokens use an `OAuthProvider` to get the tokens. 
+ 
+The `OAuthProvider` class is a wrapper that hydrates a `OAuthProviderImpl` with credentials from the environment. 
 
 If you want to manually set the credentials (for example, to address multiple clusters in a single application), you can do so by creating an `OAuthProviderImpl` directly, like so:
 
