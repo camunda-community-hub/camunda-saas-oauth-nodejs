@@ -17,11 +17,12 @@ export class OAuthProviderImpl {
     private clientId: string;
     private clientSecret: string;
     private useFileCache: boolean;
-    private tokenCache: { [key: string]: Token; } = {};
+    public tokenCache: { [key: string]: Token; } = {};
     private failed = false;
     private failureCount = 0;
     private userAgentString: string;
     private audience: string;
+    private expiryTimer?: NodeJS.Timeout;
 
     constructor({
         /** OAuth Endpoint URL */
@@ -52,6 +53,12 @@ export class OAuthProviderImpl {
                     'If you are running on AWS Lambda, set the HOME environment variable of your lambda function to /tmp'
                 );
             }
+        }
+    }
+
+    public close() {
+        if (this.expiryTimer) {
+            clearTimeout(this.expiryTimer)
         }
     }
 
@@ -111,8 +118,10 @@ export class OAuthProviderImpl {
                         this.toFileCache(token, audience);
                     }
                     const key = this.getCacheKey(audience)
+                    const d = new Date()
+					token.expiry = d.setSeconds(d.getSeconds()) + (token.expires_in * 1000)
                     this.tokenCache[key] = token;
-                    this.startExpiryTimer(token);
+                    this.startExpiryTimer(token, audience);
                     return token.access_token;
                 })
             );
@@ -142,7 +151,7 @@ export class OAuthProviderImpl {
             if (this.isExpired(token)) {
                 return null;
             }
-            this.startExpiryTimer(token);
+            this.startExpiryTimer(token, audience);
             return token;
         } catch (_) {
             return null;
@@ -176,15 +185,26 @@ export class OAuthProviderImpl {
         return token.expiry <= d.setSeconds(d.getSeconds());
     }
 
-    private startExpiryTimer(token: Token) {
+    private startExpiryTimer(token: Token, audience: TokenGrantAudiences) {
         const d = new Date();
         const current = d.setSeconds(d.getSeconds());
-        const validityPeriod = token.expiry - current * 1000;
+        const validityPeriod = token.expiry - current;
+        const minimumCacheLifetime = 0; // Minimum cache lifetime in milliseconds
+		const renewTokenAfterMs = Math.max(validityPeriod - 1000, minimumCacheLifetime) // 1s before expiry
+        const cacheKey = this.getCacheKey(audience)
+        console.log({validityPeriod})
         if (validityPeriod <= 0) {
-            delete this.tokenCache[this.clientId];
+            delete this.tokenCache[cacheKey];
             return;
         }
-        setTimeout(() => delete this.tokenCache[this.clientId], validityPeriod);
+        this.expiryTimer = setTimeout(() => {
+            console.log(`Deleting cached token`)
+            const filename = this.getCachedTokenFileName(this.clientId, audience)
+            delete this.tokenCache[cacheKey]
+            if (this.useFileCache && fs.existsSync(filename)) {
+				fs.unlinkSync(filename)
+			}
+        }, renewTokenAfterMs);
     }
 
     private getCacheKey = (audience: TokenGrantAudiences) => `${this.clientId}-${audience}`
