@@ -192,13 +192,11 @@ export class OAuthProviderImpl {
         const minimumCacheLifetime = 0; // Minimum cache lifetime in milliseconds
 		const renewTokenAfterMs = Math.max(validityPeriod - 1000, minimumCacheLifetime) // 1s before expiry
         const cacheKey = this.getCacheKey(audience)
-        console.log({validityPeriod})
         if (validityPeriod <= 0) {
             delete this.tokenCache[cacheKey];
             return;
         }
         this.expiryTimer = setTimeout(() => {
-            console.log(`Deleting cached token`)
             const filename = this.getCachedTokenFileName(this.clientId, audience)
             delete this.tokenCache[cacheKey]
             if (this.useFileCache && fs.existsSync(filename)) {
