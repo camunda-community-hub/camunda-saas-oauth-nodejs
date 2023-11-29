@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "camunda-8-credentials-from-env": "^1.2.2",
-    "got": "^11.8.5"
+    "got": "^14.0.0"
   }
 }
