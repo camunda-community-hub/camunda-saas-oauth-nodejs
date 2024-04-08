@@ -8,6 +8,11 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+# DEPRECATED
+
+This package is deprecated. Please use the official SDK package @camunda8/sdk. See: https://github.com/camunda/camunda-8-js-sdk
+
+---
 A library to exchange a set of Camunda 8 SaaS API credentials for a token to make API calls to Camunda 8 SaaS. Uses [camunda-8-credentials-from-env](https://github.com/camunda-community-hub/camunda-8-credentials-from-env) to get the credentials from the environment.
 
 Caches the token to disk, and refreshes tokens before they expire.
